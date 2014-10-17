@@ -41,6 +41,27 @@ public:
         }
 	}
 
+#ifdef USE_OFX_TURBO_JPEG
+    bool getNextMessageAsPixels(ofPixels &data) {
+        bool ret = tmpBufferEnabled && (tmpType == OFX_ZMQ_BINARY_SINGLE_IMAGE || tmpType == OFX_ZMQ_BINARY_SINGLE_IMAGE_JPEG);
+        if (ret) {
+            const char* ptr = tmpBuffer.getBinaryBuffer() + sizeof(ofxZmqBinaryHeader);
+            if (tmpType == OFX_ZMQ_BINARY_SINGLE_IMAGE) {
+                ofxZmqPixelsHeader* header = (ofxZmqPixelsHeader*) ptr;
+                const unsigned char* imgPtr = (const unsigned char*)ptr + sizeof(ofxZmqPixelsHeader);
+                data.setFromPixels(imgPtr, header->width, header->height, header->numChannels);
+            } else if (tmpType == OFX_ZMQ_BINARY_SINGLE_IMAGE_JPEG) {
+                ofxZmqBinaryHeader* h = (ofxZmqBinaryHeader*) tmpBuffer.getBinaryBuffer();
+                ofBuffer imageBuffer;
+                int actualSize = h->elementSize;
+                imageBuffer.set(ptr, actualSize);
+                return turbo.load(imageBuffer, data);
+            }
+        }
+        return ret;
+    }
+#endif
+    
 	template <typename T, typename P>
 	bool getNextMessageAsPixels(ofPixels_<P> &data) {
 		bool ret = tmpBufferEnabled && (tmpType == OFX_ZMQ_BINARY_SINGLE_IMAGE || tmpType == OFX_ZMQ_BINARY_SINGLE_IMAGE_JPEG);
@@ -55,11 +76,7 @@ public:
 				ofBuffer imageBuffer;
 				int actualSize = h->elementSize;
                 imageBuffer.set(ptr, actualSize);
-#ifdef USE_OFX_TURBO_JPEG
-                return turbo.load(imageBuffer, data);
-#else
                 return ofLoadImage(data, imageBuffer);
-#endif
 			}
 		}
 		return ret;
