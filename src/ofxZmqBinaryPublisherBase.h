@@ -23,6 +23,10 @@ public:
 	void update(uint64_t t) {
 		ts = t;
 	}
+    
+    ofxZmqPublisher& getPub() {
+        return pub;
+    }
 
 	template <typename T>
 	bool sendPixels(string identifer, const T* ptr, int width, int height, int numChannels) {

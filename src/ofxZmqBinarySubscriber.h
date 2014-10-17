@@ -13,6 +13,10 @@ private:
     ofxTurboJpeg turbo;
 #endif
 public:
+    ofxZmqSubscriber& getSub() {
+        return sub;
+    }
+    
     void getLatestBuffer(ofBuffer** ptr) {
         *ptr = &tmpBuffer;
     }
