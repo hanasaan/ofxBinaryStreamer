@@ -39,7 +39,7 @@ public:
 			h.bytesPerChannel = pixel.getBytesPerChannel();
 			h.numChannels = pixel.getNumChannels();
 			buffer.append((const char*) &h, sizeof(ofxZmqPixelsHeader));
-			buffer.append((const char*) pixel.getPixels(), pixel.size());
+			buffer.append((const char*) pixel.getPixels(), pixel.size() * pixel.getBytesPerChannel());
 			header.elementSize = buffer.size() + sizeof(ofxZmqPixelsHeader);
 		}
 
