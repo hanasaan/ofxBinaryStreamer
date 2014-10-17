@@ -9,6 +9,9 @@ private:
 	ofBuffer tmpBuffer;
 	ofxZmqBinaryType tmpType;
 	bool tmpBufferEnabled;
+#ifdef USE_OFX_TURBO_JPEG
+    ofxTurboJpeg turbo;
+#endif
 public:
     void getLatestBuffer(ofBuffer** ptr) {
         *ptr = &tmpBuffer;
@@ -52,8 +55,11 @@ public:
 				ofBuffer imageBuffer;
 				int actualSize = h->elementSize;
                 imageBuffer.set(ptr, actualSize);
-                
-				ofLoadImage(data, imageBuffer);
+#ifdef USE_OFX_TURBO_JPEG
+                return turbo.load(imageBuffer, data);
+#else
+                return ofLoadImage(data, imageBuffer);
+#endif
 			}
 		}
 		return ret;

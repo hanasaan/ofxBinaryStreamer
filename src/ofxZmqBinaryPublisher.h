@@ -5,13 +5,17 @@
 #include "ofxZmqBinaryPublisherBase.h"
 
 class ofxZmqBinaryPublisher  : public ofxZmqBinaryPublisherBase {
+protected:
+#ifdef USE_OFX_TURBO_JPEG
+    ofxTurboJpeg turbo;
+#endif
 public:
 	void update() {
 		ts = ofGetElapsedTimeMillis();
 	}
 
 	template <typename T>
-	bool sendPixels(string identifer, ofPixels_<T>& pixel, bool compression = true) {
+	bool sendPixels(string identifer, ofPixels_<T>& pixel, bool compression = true, int quality = 90) {
 		ofxZmqBinaryHeader header(identifer, ts, 0);
 		ofBuffer buffer;
 
@@ -19,7 +23,11 @@ public:
 			header.type = OFX_ZMQ_BINARY_SINGLE_IMAGE_JPEG;
 
 			ofBuffer imageBuffer;
+#ifdef USE_OFX_TURBO_JPEG
+            turbo.save(imageBuffer, pixel, quality);
+#else
 			ofSaveImage(pixel, imageBuffer, OF_IMAGE_FORMAT_JPEG, OF_IMAGE_QUALITY_HIGH);
+#endif
 			buffer.append(imageBuffer.getBinaryBuffer(), imageBuffer.size());
 			header.elementSize = imageBuffer.size();
 		} else {
